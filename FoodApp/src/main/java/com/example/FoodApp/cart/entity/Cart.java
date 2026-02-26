@@ -7,14 +7,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @Table(name="carts")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
-
 public class Cart {
 
     @Id
@@ -25,14 +25,11 @@ public class Cart {
     @JoinColumn(name="user_id")
     private User user;
 
-    private List<CartItem>cartItems;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<CartItem> cartItems;
 
     private String promoCode;
-
-
-
-
-
 
 
 }
