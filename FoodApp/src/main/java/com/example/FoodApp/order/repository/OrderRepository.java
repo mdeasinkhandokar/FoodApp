@@ -16,7 +16,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findByUserOrderByOrderDateDesc(User user);
 
-    @Query("SELECR COUNT(DISTINCT o.user.id) FROM Order o")
+    @Query("SELECT COUNT(DISTINCT o.user.id) FROM Order o")
     long countDistinctUsers();
 
 

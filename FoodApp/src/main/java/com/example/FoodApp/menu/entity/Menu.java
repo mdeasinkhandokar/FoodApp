@@ -2,6 +2,7 @@ package com.example.FoodApp.menu.entity;
 
 
 import com.example.FoodApp.category.entity.Category;
+import com.example.FoodApp.order.entity.OrderItem;
 import com.stripe.model.Review;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -43,12 +44,6 @@ public class Menu {
 
     @OneToMany(mappedBy = "menu")
     private List<Review> reviews;
-
-
-
-
-
-
 
 
 
