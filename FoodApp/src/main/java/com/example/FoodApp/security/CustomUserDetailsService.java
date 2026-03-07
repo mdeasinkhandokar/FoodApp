@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
         return AuthUser.builder()
-                .usr(user)
+                .user(user)
                 .build();
     }
 }
