@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -18,13 +19,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.naming.AuthenticationException;
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class AuthFilter extends OncePerRequestFilter {
+
     private final JwtUtils jwtUtils;
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -41,7 +42,7 @@ public class AuthFilter extends OncePerRequestFilter {
             String email;
             try {
                 email = jwtUtils.getUsernameFromToken(token);
-            } catch (Exception ex) {
+            }catch(Exception ex){
                 AuthenticationException authenticationException = new BadCredentialsException(ex.getMessage());
                 customAuthenticationEntryPoint.commence(request, response, authenticationException);
                 return;

@@ -2,6 +2,7 @@ package com.example.FoodApp.review.entity;
 
 
 import com.example.FoodApp.auth_users.entity.User;
+
 import com.example.FoodApp.menu.entity.Menu;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

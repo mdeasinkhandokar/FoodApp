@@ -24,12 +24,13 @@ public class JwtUtils {
 
     private SecretKey key;
 
-    @Value("${secretJwtString}")
-    private String secrecteJwtString ;
+
+    @Value("${secreteJwtString}")
+    private String secreteJwtString;
 
     @PostConstruct
     private  void init(){
-        byte[]keyByte=secrecteJwtString.getBytes(StandardCharsets.UTF_8);
+        byte[]keyByte=secreteJwtString.getBytes(StandardCharsets.UTF_8);
         this.key=new SecretKeySpec(keyByte, "HmacSHA256");
 
 
