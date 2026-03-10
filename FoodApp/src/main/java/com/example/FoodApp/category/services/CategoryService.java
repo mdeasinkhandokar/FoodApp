@@ -1,4 +1,22 @@
 package com.example.FoodApp.category.services;
 
-public class CategoryService {
+import com.example.FoodApp.category.dtos.CategoryDTO;
+import com.example.FoodApp.response.Response;
+import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+
+public interface CategoryService {
+
+
+     Response<CategoryDTO> addCategory( CategoryDTO categoryDTO);
+
+     Response<CategoryDTO> updateCategory(CategoryDTO categoryDTO);
+
+   Response<CategoryDTO> getCategoryById(Long id);
+
+    Response<List<CategoryDTO>> getAllCategories();
+
+    Response<?> deleteCategory(Long id);
 }
