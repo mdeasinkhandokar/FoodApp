@@ -4,6 +4,7 @@ package com.example.FoodApp.security;
 import com.example.FoodApp.exceptions.CustomAccessDenialHandler;
 import com.example.FoodApp.exceptions.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -36,7 +37,7 @@ public class SecurityFilter {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .exceptionHandling(ex ->
-                        ex.accessDeniedHandler(customAccessDenialHandler).authenticationEntryPoint((AuthenticationEntryPoint) customAuthenticationEntryPoint))
+                        ex.accessDeniedHandler(customAccessDenialHandler).authenticationEntryPoint(customAuthenticationEntryPoint))
                 .authorizeHttpRequests(req ->
                         req.requestMatchers("/api/auth/**", "/api/categories/**", "/api/menu/**", "/api/reviews/**").permitAll()
                                 .anyRequest().authenticated())
@@ -56,11 +57,6 @@ public class SecurityFilter {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
-
-
-
-
-
 
 
 

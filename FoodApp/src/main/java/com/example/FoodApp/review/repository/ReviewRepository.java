@@ -1,6 +1,7 @@
 package com.example.FoodApp.review.repository;
 
-import com.stripe.model.Review;
+
+import com.example.FoodApp.review.entity.Review;
 import org.apache.catalina.valves.rewrite.RewriteCond;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
