@@ -18,7 +18,7 @@ import static org.modelmapper.Converters.Collection.map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryService categoryService;
     private final ModelMapper modelMapper;
@@ -28,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService{
     public Response<CategoryDTO> addCategory(CategoryDTO categoryDTO) {
 
         log.info("Inside addCategory()");
-        Category category = modelMapper.map(categoryDTO,Category.class);
+        Category category = modelMapper.map(categoryDTO, Category.class);
 
         categoryRepository.save(category);
 
@@ -41,18 +41,15 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
 
-
-
-
     @Override
     public Response<CategoryDTO> updateCategory(CategoryDTO categoryDTO) {
         log.info("Inside updateCategory()");
 
-        Category category= categoryRepository.findById(CategoryDTO.getId ())
-        .orElseThrow(()->new NotFoundException("Category Not Found"));
+        Category category = categoryRepository.findById(CategoryDTO.getId())
+                .orElseThrow(() -> new NotFoundException("Category Not Found"));
 
-        if(categoryDTO.getName() !=null && !categoryDTO.getName().isEmpty())category.setName(categoryDTO.getName());
-        if(categoryDTO.getDescription() !=null)category.setDescription(categoryDTO.getDescription());
+        if (categoryDTO.getName() != null && !categoryDTO.getName().isEmpty()) category.setName(categoryDTO.getName());
+        if (categoryDTO.getDescription() != null) category.setDescription(categoryDTO.getDescription());
 
         categoryRepository.save(category);
 
@@ -64,19 +61,14 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
 
-
-
-
-
-
     @Override
     public Response<CategoryDTO> getCategoryById(Long id) {
-      log.info("Inside getCategoryById()");
+        log.info("Inside getCategoryById()");
 
         Category category = categoryRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Category Not Found"));
+                .orElseThrow(() -> new NotFoundException("Category Not Found"));
 
-        CategoryDTO categoryDTO = modelMapper.map(category , CategoryDTO.class);
+        CategoryDTO categoryDTO = modelMapper.map(category, CategoryDTO.class);
 
         return Response.<CategoryDTO>builder()
                 .statusCode(HttpStatus.OK.value())
@@ -85,17 +77,13 @@ public class CategoryServiceImpl implements CategoryService{
                 .build();
 
 
-
     }
-
-
-
 
 
     @Override
     public Response<List<CategoryDTO>> getAllCategories() {
-     log.info("Inside getAllCategories()");
-     List<Category>categories= categoryRepository.findAll();
+        log.info("Inside getAllCategories()");
+        List<Category> categories = categoryRepository.findAll();
 
         List<CategoryDTO> categoryDTOS = categories.stream()
                 .map(category -> modelMapper.map(category, CategoryDTO.class))
@@ -111,18 +99,18 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
 
-
-
     @Override
     public Response<?> deleteCategory(Long id) {
-     log.info("Inside deleteCategory()");
-     if(!categoryRepository.existsById(id)){
-         throw new NotFoundException("Category Not Found");
-     }
-    categoryRepository.deleteById(id);
+        log.info("Inside deleteCategory()");
+        if (!categoryRepository.existsById(id)) {
+            throw new NotFoundException("Category Not Found");
+        }
+        categoryRepository.deleteById(id);
 
-     return Response.builder()
-             .statusCode(HttpStatus.OK.value())
-             .message("Category deleted successfully")
-             .build();
+        return Response.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Category deleted successfully")
+                .build();
+    }
+
 }

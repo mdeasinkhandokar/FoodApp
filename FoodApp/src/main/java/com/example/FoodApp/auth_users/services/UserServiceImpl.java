@@ -3,6 +3,7 @@ package com.example.FoodApp.auth_users.services;
 import com.example.FoodApp.auth_users.dtos.UserDTO;
 import com.example.FoodApp.auth_users.entity.User;
 import com.example.FoodApp.auth_users.repository.UserRepository;
+import com.example.FoodApp.aws.AWSS3Service;
 import com.example.FoodApp.email_notification.dtos.NotificationDTO;
 import com.example.FoodApp.email_notification.services.NotificationService;
 import com.example.FoodApp.exceptions.BadRequestException;
@@ -176,4 +177,4 @@ public class UserServiceImpl implements  UserService{
     }
 
 
-}
+
