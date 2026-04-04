@@ -5,15 +5,11 @@ import com.example.FoodApp.response.Response;
 import org.jspecify.annotations.Nullable;
 
 public interface CartService {
-     Response<?> addIteamToCart(CartDTO cartDTO);
 
-     Response<?> incrementItem(Long menuId);
-
+    Response<?> addItemToCart(CartDTO cartDTO);
+    Response<?> incrementItem(Long menuId);
     Response<?> decrementItem(Long menuId);
-
-     Response<?> removeItem(Long cartItemId);
-
-     Response<CartDTO> getShoppingCart();
-
-     Response<?> clearShopping();
+    Response<?> removeItem(Long cartItemId);
+    Response<CartDTO> getShoppingCart();
+    Response<?> clearShoppingCart();
 }

@@ -19,7 +19,7 @@ public class CartDTO {
     private List<CartItem> cartItems;
     private Long menuId;
     private int quantity;
-    private BigDecimal totalAmounts;
+    private BigDecimal totalAmount;
 
 
 

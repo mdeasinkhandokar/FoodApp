@@ -37,8 +37,7 @@ public class CartServiceImpl implements CartService{
 
 
     @Override
-    public Response<?> addIteamToCart(CartDTO cartDTO) {
-
+    public Response<?> addItemToCart(CartDTO cartDTO) {
         log.info("Inside addItemToCart()");
 
         Long menuId = cartDTO.getMenuId();
@@ -55,64 +54,66 @@ public class CartServiceImpl implements CartService{
                     newCart.setUser(user);
                     newCart.setCartItems(new ArrayList<>());
                     return cartRepository.save(newCart);
-
                 });
 
 
-//Check if the item is already in the cart
+        // Check if the item is already in the cart
         Optional<CartItem> optionalCartItem = cart.getCartItems().stream()
                 .filter(cartItem -> cartItem.getMenu().getId().equals(menuId))
                 .findFirst();
 
-//if present, increment item
+
+        //if present, increment item
         if (optionalCartItem.isPresent()) {
             CartItem cartItem = optionalCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
             cartItem.setSubtotal(cartItem.getPricePerUnit().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
             cartItemRepository.save(cartItem);
-
         } else {
-            //if not present and add it
+            //if nor present, and add it
             CartItem newCartItem = CartItem.builder()
                     .cart(cart)
                     .menu(menu)
                     .quantity(quantity)
                     .pricePerUnit(menu.getPrice())
-                    .subtotal(menu.getPrice().multiply(BigDecimal.valueOf(quantiy)))
+                    .subtotal(menu.getPrice().multiply(BigDecimal.valueOf(quantity)))
                     .build();
 
             cart.getCartItems().add(newCartItem);
+
             cartItemRepository.save(newCartItem);
+
         }
+
+        //cartRepository.save(cart);// not, it will auto save and persists in the cart table
+
         return Response.builder()
                 .statusCode(HttpStatus.OK.value())
                 .message("Item added to cart successfully")
                 .build();
-
     }
-
 
 
     @Override
     public Response<?> incrementItem(Long menuId) {
+        log.info("Inside incrementItem()");
 
-        log.info("Inside increment()");
+        User user = userService.getCurrentLoggedInUser();
 
-        User user= userService.getCurrentLoggedInUser();
-
-        Cart cart= cartRepository.findByUser_Id(user.getId())
-                .orElseThrow(()-> new NotFoundException("Cart Not Found"));
+        Cart cart = cartRepository.findByUser_Id(user.getId())
+                .orElseThrow(() -> new NotFoundException("Cart Not Found"));
 
         CartItem cartItem = cart.getCartItems().stream()
                 .filter(item -> item.getMenu().getId().equals(menuId))
-                .findFirst().orElseThrow(()-> new NotFoundException("Menu not found in cart"));
+                .findFirst().orElseThrow(() -> new NotFoundException("Menu not found in cart"));
 
-        int newQuantity= cartItem.getQuantity()+1; //increment the item
+        int newQuantity = cartItem.getQuantity() + 1;  //INCREMENT THE ITEM
 
         cartItem.setQuantity(newQuantity);
-        cartItem.setSubtotal(cartItem.getPricePerUnit().multiply(BigDecimal.valueOf(newQuantity)));
-        cartItemRepository.save(cartItem);
 
+        cartItem.setSubtotal(cartItem.getPricePerUnit().multiply(BigDecimal.valueOf(newQuantity)));
+
+        cartItemRepository.save(cartItem);
 
         return Response.builder()
                 .statusCode(HttpStatus.OK.value())
@@ -120,81 +121,66 @@ public class CartServiceImpl implements CartService{
                 .build();
 
 
-
-
-
-
-
-
     }
 
     @Override
     public Response<?> decrementItem(Long menuId) {
-
         log.info("Inside decrementItem()");
 
-        User user= userService.getCurrentLoggedInUser();
+        User user = userService.getCurrentLoggedInUser();
 
-        Cart cart= cartRepository.findByUser_Id(user.getId())
-                .orElseThrow(()-> new NotFoundException("Cart Not Found"));
+        Cart cart = cartRepository.findByUser_Id(user.getId())
+                .orElseThrow(() -> new NotFoundException("Cart Not Found"));
 
-        CartItem cartItem= cart.getCartItems().stream()
-                .filter(item-> item.getMenu().getId().equals(menuId))
-                .findFirst().orElseThrow(()-> new NotFoundException("Menu not found in cart"));
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(item -> item.getMenu().getId().equals(menuId))
+                .findFirst().orElseThrow(() -> new NotFoundException("Menu not found in cart"));
 
-        int newQuantity= cartItem.getQuantity()-1;
+        int newQuantity = cartItem.getQuantity() - 1; //DECREMENT THE ITEM
 
-        if(newQuantity>0) {
+        if (newQuantity > 0) {
             cartItem.setQuantity(newQuantity);
             cartItem.setSubtotal(cartItem.getPricePerUnit().multiply(BigDecimal.valueOf(newQuantity)));
-        }
-        else{
-            Cart.getCartItems().remove(cartItem);
+            cartItemRepository.save(cartItem);
+        } else {
+            cart.getCartItems().remove(cartItem);
             cartItemRepository.delete(cartItem);
         }
-return Response.builder()
-        .statusCode(HttpStatus.OK.value())
-        .message("Item decremented successfully")
-        .build();
 
-
+        return Response.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Item decremented successfully")
+                .build();
     }
-
-
 
     @Override
     public Response<?> removeItem(Long cartItemId) {
         log.info("Inside removeItem()");
 
+        User user = userService.getCurrentLoggedInUser();
 
-        User user= userService.getCurrentLoggedInUser();
+        Cart cart = cartRepository.findByUser_Id(user.getId())
+                .orElseThrow(() -> new NotFoundException("Cart not found for user"));
 
-        Cart cart= cartRepository.findByUser_Id(user.getId())
-                .orElseThrow(()-> new NotFoundException("Cart not found for user"));
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new NotFoundException("Cart item not found"));
 
-        CartItem cartItem= cartItemRepository.findById(cartItemId)
-                .orElseThrow(()-> new NotFoundException("Cart item not found"));
-
-
-        if(!cart.getCartItems().contains(cartItem)){
+        if (!cart.getCartItems().contains(cartItem)) {
             throw new NotFoundException("Cart item does not belong to this user's cart");
-
         }
         cart.getCartItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
+
 
         return Response.builder()
                 .statusCode(HttpStatus.OK.value())
                 .message("Item removed from cart successfully")
                 .build();
-
-
     }
 
     @Override
     @Transactional(readOnly = true)
     public Response<CartDTO> getShoppingCart() {
-
         log.info("Inside getShoppingCart()");
 
         User user = userService.getCurrentLoggedInUser();
@@ -202,26 +188,23 @@ return Response.builder()
         Cart cart = cartRepository.findByUser_Id(user.getId())
                 .orElseThrow(() -> new NotFoundException("Cart not found for user"));
 
-
         List<CartItem> cartItems = cart.getCartItems();
 
         CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
 
-
-        //Calculate total Amount
+        // Calculate total amount
         BigDecimal totalAmount = BigDecimal.ZERO;
-        if (cartItems != null) {
+        if (cartItems != null) { // Add null check here
             for (CartItem item : cartItems) {
                 totalAmount = totalAmount.add(item.getSubtotal());
-
             }
         }
-        cartDTO.setTotalAmount(totalAmount);
 
+        cartDTO.setTotalAmount(totalAmount); //set the totalAmount
 
         //remove the review from the response
         if (cartDTO.getCartItems() != null) {
-            cartDTO.getCarItems()
+            cartDTO.getCartItems()
                     .forEach(item -> item.getMenu().setReviews(null));
         }
 
@@ -233,22 +216,8 @@ return Response.builder()
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
-    public Response<?> clearShopping() {
-
+    public Response<?> clearShoppingCart() {
         log.info("Inside clearShoppingCart()");
 
         User user = userService.getCurrentLoggedInUser();
@@ -259,24 +228,17 @@ return Response.builder()
         //Delete cart items from the database first
         cartItemRepository.deleteAll(cart.getCartItems());
 
-
         //Clear the cart's items collection
-        car.getCartItem().clear();
+        cart.getCartItems().clear();
 
         //update the database
         cartRepository.save(cart);
 
         return Response.builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Shopping cart clear successfully")
+                .message("Shopping cart cleared successfully")
                 .build();
-
-
     }
-
-
-
-
 
     }
 

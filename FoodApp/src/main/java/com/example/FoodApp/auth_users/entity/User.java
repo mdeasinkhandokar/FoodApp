@@ -42,6 +42,8 @@ public class User {
 
     private boolean isActive;
 
+    private String profileUrl;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PaymentDTO {
 
+
     private Long id;
 
     private Long orderId;
@@ -30,14 +31,12 @@ public class PaymentDTO {
 
     private String failureReason;
 
-    private  boolean success;
+    private boolean success;
 
     private LocalDateTime paymentDate;
 
     private OrderDTO order;
-
     private UserDTO user;
-
 
 
 

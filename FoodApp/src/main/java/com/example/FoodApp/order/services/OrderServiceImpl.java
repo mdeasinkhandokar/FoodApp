@@ -21,9 +21,9 @@ import com.example.FoodApp.order.repository.OrderItemRepository;
 import com.example.FoodApp.order.repository.OrderRepository;
 import com.example.FoodApp.response.Response;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +39,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.sun.tools.javac.resources.CompilerProperties.Fragments.Local;
+
 
 @Service
 @RequiredArgsConstructor
@@ -56,98 +56,108 @@ public class OrderServiceImpl implements OrderService {
     private final CartService cartService;
     private final CartRepository cartRepository;
 
+
     @Value("${base.payment.link}")
     private String basePaymentLink;
 
 
     @Transactional
     @Override
-    public Response<?>placeOrderFromCart(){
+    public Response<?> placeOrderFromCart() {
+
         log.info("Inside placeOrderFromCart()");
 
-        User customer= userService.getCurrentLoggedInUser();
+        User customer = userService.getCurrentLoggedInUser();
 
         log.info("user passed");
 
-
-        String deliveryAddress= customer.getAddress();
+        String deliveryAddress = customer.getAddress();
 
         log.info("deliveryAddress passed");
 
-        if(deliveryAddress==null){
+        if (deliveryAddress == null) {
             throw new NotFoundException("Delivery Address Not present for the user");
-
         }
         Cart cart = cartRepository.findByUser_Id(customer.getId())
-                .orElseThrow(()-> new NotFoundException("Cart not found for the user"));
+                .orElseThrow(()-> new NotFoundException("Cart not found for the user" ));
 
-        log.info("card passed");
 
-        List<CartItem> cartItems=cart.getCartItems();
+        log.info("cart passed");
+
+        List<CartItem> cartItems = cart.getCartItems();
 
         log.info("cartItems passed");
 
-        if(cartItems== null || cartItems.isEmpty())throw new BadRequestException("Cart is empty");
+        if (cartItems == null || cartItems.isEmpty()) throw new BadRequestException("Cart is empty");
 
-        List<OrderItem>orderItems= new ArrayList<>();
+        List<OrderItem> orderItems = new ArrayList<>();
 
         BigDecimal totalAmount = BigDecimal.ZERO;
 
+
         log.info("totalAmount passed");
 
-        for(CartItem cartItem : cartItems){
-            OrderItem orderItem= OrderItem.builder()
-                    .menu(cartItem.getmenu())
+        for (CartItem cartItem: cartItems){
+
+            OrderItem orderItem = OrderItem.builder()
+                    .menu(cartItem.getMenu())
                     .quantity(cartItem.getQuantity())
                     .pricePerUnit(cartItem.getPricePerUnit())
                     .subtotal(cartItem.getSubtotal())
                     .build();
-
             orderItems.add(orderItem);
-            totalAmount=totalAmount.add(orderItem.getSubtotal());
-
+            totalAmount = totalAmount.add(orderItem.getSubtotal());
         }
-log.info("orderItem adding passed");
 
-        Order order =Order.builder()
+        log.info("orderItem adding passed");
+
+        Order order = Order.builder()
                 .user(customer)
                 .orderItems(orderItems)
                 .orderDate(LocalDateTime.now())
                 .totalAmount(totalAmount)
-                .orderStatus(OrderStatus.INTITIALIZED)
+                .orderStatus(OrderStatus.INITIALIZED)
                 .paymentStatus(PaymentStatus.PENDING)
                 .build();
 
-log.info("order build passed");
 
-Order savedOrder = orderRepository.save(order);
+        log.info("order build passed");
 
-log.info("order saved passed");
-orderItems.forEach(orderItem ->orderItem.setOrder(savedOrder));
+        Order savedOrder = orderRepository.save(order); //save order
 
-orderItemRepository.saveAll(orderItems);
 
-log.info("order items saved ");
+        log.info("order saved passed");
 
-//clear the users cart after the order is placed
-        cartService.clearShopping();
+        orderItems.forEach(orderItem -> orderItem.setOrder(savedOrder));
+
+        orderItemRepository.saveAll(orderItems); //save order item
+
+
+        log.info("order items saved");
+
+        // Clear the user's cart after the order is placed
+        cartService.clearShoppingCart();
+
         log.info("shopping cart cleared");
 
-        OrderDTO orderDTO= modelMapper.map(savedOrder,OrderDTO.class);
+        OrderDTO orderDTO = modelMapper.map(savedOrder, OrderDTO.class);
 
-        log.info("model mapper mapped savedOrder to OrderDTO");
 
-        //Send email notifications
-        sendOrderConfirmationEmail(customer,orderDTO);
+        log.info("model mappern mapped savedOrder to OrderDTO");
+
+        // Send email notifications
+        sendOrderConfirmationEmail(customer, orderDTO);
+
 
         log.info("building response to send");
+
 
         return Response.builder()
                 .statusCode(HttpStatus.OK.value())
                 .message("Your order has been received! We've sent a secure payment link to your email. Please proceed for payment to confirm your order.")
                 .build();
-    }
 
+    }
 
 
 
@@ -317,8 +327,8 @@ log.info("order items saved ");
         //Build the order items HTML using StringBuilder
         StringBuilder orderItemsHtml = new StringBuilder();
 
-        for(OrderItemDTO item: orderDTO.getOrderItems()){
-            orderItemsHtml.append(("<div class=\"order-item\">")
+        for (OrderItemDTO item : orderDTO.getOrderItems()) {
+            orderItemsHtml.append("<div class=\"order-item\">")
                     .append("<p>").append(item.getMenu().getName()).append(" x ").append(item.getQuantity()).append("</p>")
                     .append("<p> $ ").append(item.getSubtotal()).append("</p>")
                     .append("</div>");
