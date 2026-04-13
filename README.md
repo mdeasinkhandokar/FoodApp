@@ -53,7 +53,7 @@ Database (MySQL)
 - Spring Security
 - Spring Data JPA (Hibernate)
 - MySQL
-- JWT (jjwt)
+- JWT 
 - Lombok
 - ModelMapper
 - Stripe Java SDK
